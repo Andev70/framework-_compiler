@@ -1,0 +1,16 @@
+{
+  "name": "framework",
+  "version": "0.0.1",
+  "description": "this is a compiler for my own framework",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "node index.js"
+  },
+  "keywords": ["compiler", "ast", "framework", "npm"],
+  "author": "anupal",
+  "license": "ISC",
+  "dependencies": {
+    "acorn": "^8.11.3"
+  }
+}
