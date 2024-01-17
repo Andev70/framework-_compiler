@@ -44,6 +44,7 @@ class SVELTEParser {
       if (matchString("<")) {
         advance_index("<");
         const tagName = readWhileMatching(/[a-z]/);
+
         const attributes = parseAttributeList();
         advance_index(">");
         const endTag = `</${tagName}>`;
@@ -52,9 +53,15 @@ class SVELTEParser {
           type: "Element",
           name: tagName,
           attributes,
-          children: parseFragments(() => !matchString(endTag)),
+          children: parseFragments(() => {
+            if (!matchString(endTag) && !isSelfClosingTag(tagName)) {
+              return true;
+            }
+          }),
         };
-        advance_index(endTag);
+        if (!isSelfClosingTag(tagName)) {
+          advance_index(endTag);
+        }
         return element;
       }
     }
@@ -202,6 +209,32 @@ class SVELTEParser {
     function skipWhitespace() {
       readWhileMatching(/[\s\n]/);
     }
+    // check if self closing tag or not
+
+    function isSelfClosingTag(tagname) {
+      const selfClosingTags = [
+        "area",
+        "base",
+        "br",
+        "col",
+        "command",
+        "embed",
+        "hr",
+        "img",
+        "input",
+        "keygen",
+        "link",
+        "meta",
+        "param",
+        "source",
+        "track",
+        "wbr",
+      ];
+      if (selfClosingTags.includes(tagname)) {
+        return true;
+      }
+    }
+    //end of selfclosing check
 
     ast.html = parseFragments(() => i < content.length);
 

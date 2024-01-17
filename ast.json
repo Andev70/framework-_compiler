@@ -72,6 +72,40 @@
       "children": [
         {
           "type": "Element",
+          "name": "input",
+          "attributes": [
+            {
+              "type": "Attribute",
+              "name": "type",
+              "value": "text"
+            },
+            null,
+            null,
+            null
+          ],
+          "children": []
+        },
+        {
+          "type": "Element",
+          "name": "img",
+          "attributes": [
+            {
+              "type": "Attribute",
+              "name": "src",
+              "value": "hhdd"
+            },
+            null,
+            {
+              "type": "Attribute",
+              "name": "alt",
+              "value": "bbxb"
+            },
+            null
+          ],
+          "children": []
+        },
+        {
+          "type": "Element",
           "name": "p",
           "attributes": [
             {
