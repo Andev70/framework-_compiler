@@ -1,0 +1,11 @@
+  
+button {
+  background-color: orange;
+  color: white;
+  width: max-content;
+  height: max-content;
+  padding: 8px 12px;
+  border-radius: 6.4px;
+  border:none;
+  
+}

@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import * as acorn from "acorn";
-
+import * as estreewalker from "estree-walker";
+import * as escodegen from "escodegen";
+import * as periscopic from "periscopic";
 const content = fs.readFileSync("./app.svelte", "utf8");
 
 let i = 0;
@@ -88,7 +90,6 @@ class SVELTEParser {
         const startIndex = i;
         const endIndex = content.indexOf("</style>", i);
         const code = content.slice(startIndex, endIndex);
-        ast.style = { code };
         i = endIndex;
         advance_index("</style>");
 
@@ -138,9 +139,16 @@ class SVELTEParser {
         //const value = readWhileMatching(/[^}\s\n>]/); // Read the attribute value
         const currentIndex = i;
         const lastIndex = content.indexOf("}", i);
-        const value = content.slice(currentIndex, lastIndex);
-        if (value.startsWith(`"`) || value.startsWith(`'`)) {
+        let value = content.slice(currentIndex, lastIndex);
+        if (
+          value.startsWith(`{"`) ||
+          value.startsWith(`{'`) ||
+          value.startsWith(`"`) ||
+          value.startsWith(`'`)
+        ) {
           value = value.slice(1, -1);
+        } else {
+          value = acorn.parse(value, { ecmaVersion: 2022 });
         }
         i = lastIndex;
         advance_index("}");
@@ -159,12 +167,13 @@ class SVELTEParser {
         advance_index("{");
         const startIndex = i;
         const endIndex = content.indexOf("}", i);
-        let expression = acorn.parse(content.slice(startIndex, endIndex), {
+        const name = content.slice(startIndex, endIndex);
+        let expression = acorn.parse(name, {
           ecmaVersion: 2022,
         });
         i = endIndex;
         advance_index("}");
-        return { type: "expression", expression };
+        return { type: "Expression", expression, name };
       }
     }
     // parse text content
@@ -241,8 +250,211 @@ class SVELTEParser {
     return ast;
   }
   /* end of parse svelte method*/
+  // analyse the abstract syntax tree
+  analyse(ast) {
+    const result = {
+      variables: new Set(),
+      willChange: new Set(),
+      willUseInTemplate: new Set(),
+    };
+
+    const { scope: rootScope, map } = periscopic.analyze(ast.script);
+    result.variables = new Set(rootScope.declarations.keys());
+    result.rootScope = rootScope;
+    result.map = map;
+
+    let currentScope = rootScope;
+    estreewalker.walk(ast.script, {
+      enter(node) {
+        if (node.type === "BlockStatement") {
+          console.log(node.body[0].expression.left.name);
+        }
+        if (map.has(node)) currentScope = map.get(node);
+        if (
+          node.type === "UpdateExpression" &&
+          currentScope.find_owner(node.argument.name) === rootScope
+        ) {
+          result.willChange.add(node.argument.name);
+        } else if (
+          node.type === "BlockStatement" &&
+          currentScope.find_owner(node.body[0].expression.left.name)
+        ) {
+          result.willChange.add(node.body[0].expression.left.name);
+        }
+      },
+      leave(node) {
+        if (map.has(node)) currentScope = currentScope.parent;
+      },
+    });
+
+    function traverse(fragment) {
+      switch (fragment?.type) {
+        case "Element":
+          fragment.children.forEach((child) => traverse(child));
+          fragment.attributes.forEach((attribute) => traverse(attribute));
+          break;
+        case "Attribute":
+          // No neebd to add every attribute, only those with expressions in curly brackets
+          if (fragment.value && fragment.value.type === "Expression") {
+            result.willUseInTemplate.add(fragment.value.expression.name);
+          }
+          break;
+        case "Expression":
+          result.willUseInTemplate.add(fragment.name);
+          break;
+      }
+    }
+    ast.html.forEach((fragment) => traverse(fragment));
+
+    return result;
+  }
+
+  // generate optimysed javascript code
+  generate(ast, analysis) {
+    const code = {
+      variables: [],
+      create: [],
+      update: [],
+      destroy: [],
+    };
+
+    let counter = 1;
+    function traverse(node, parent) {
+      switch (node?.type) {
+        case "Element": {
+          const variableName = `${node.name}_${counter++}`;
+          code.variables.push(variableName);
+          code.create.push(
+            `${variableName} = document.createElement('${node.name}');`
+          );
+          node.attributes.forEach((attribute) => {
+            traverse(attribute, variableName);
+          });
+          node.children.forEach((child) => {
+            traverse(child, variableName);
+          });
+          code.create.push(`${parent}.appendChild(${variableName})`);
+          code.destroy.push(`${parent}.removeChild(${variableName})`);
+          break;
+        }
+        case "Text": {
+          const variableName = `txt_${counter++}`;
+          code.variables.push(variableName);
+          code.create.push(
+            `${variableName} = document.createTextNode('${node.value}')`
+          );
+          code.create.push(`${parent}.appendChild(${variableName})`);
+          break;
+        }
+        case "Attribute": {
+          if (node.name.startsWith("on:")) {
+            const eventName = node.name.slice(3);
+            const eventHandler = node.value.body[0].expression.name;
+
+            code.create.push(
+              `${parent}.addEventListener('${eventName}', ${eventHandler});`
+            );
+            code.destroy.push(
+              `${parent}.removeEventListener('${eventName}', ${eventHandler});`
+            );
+          }
+          break;
+        }
+        case "Expression": {
+          const variableName = `txt_${counter++}`;
+          const expression = node.name;
+
+          code.variables.push(variableName);
+          code.create.push(
+            `${variableName} = document.createTextNode(${expression})`
+          );
+          code.create.push(`${parent}.appendChild(${variableName});`);
+          if (analysis.willChange.has(node.name)) {
+            code.update.push(`if (changed.includes('${expression}')) {
+            ${variableName}.data = ${expression};
+          }`);
+          }
+          break;
+        }
+      }
+    }
+
+    ast.html.forEach((fragment) => traverse(fragment, "target"));
+
+    const { rootScope, map } = analysis;
+    let currentScope = rootScope;
+    estreewalker.walk(ast.script, {
+      enter(node) {
+        if (map.has(node)) currentScope = map.get(node);
+        if (
+          node?.type === "UpdateExpression" &&
+          currentScope.find_owner(node.argument.name) === rootScope &&
+          analysis.willUseInTemplate.has(node.argument.name)
+        ) {
+          this.replace({
+            type: "SequenceExpression",
+            expressions: [
+              node,
+              acorn.parseExpressionAt(
+                `lifecycle.update(['${node.argument.name}'])`,
+                0,
+                {
+                  ecmaVersion: 2022,
+                }
+              ),
+            ],
+          });
+          this.skip();
+        } else if (
+          node?.type === "BlockStatement" &&
+          currentScope.find_owner(node.body[0].expression.left.name) ===
+            rootScope &&
+          analysis.willUseInTemplate.has(node.body[0].expression.left.name)
+        ) {
+          this.replace({
+            type: "SequenceExpression",
+            expressions: [
+              node,
+              acorn.parseExpressionAt(
+                `lifecycle.update(['${node.body[0].expression.left.name}'])`,
+                0,
+                {
+                  ecmaVersion: 2022,
+                }
+              ),
+            ],
+          });
+          this.skip();
+        }
+      },
+      leave(node) {
+        if (map.has(node)) currentScope = currentScope.parent;
+      },
+    });
+    return `
+    export default function() {
+      ${code.variables.map((v) => `let ${v};`).join("\n")}
+      ${escodegen.generate(ast.script)}
+      const lifecycle = {
+        create(target) {
+          ${code.create.join("\n")}
+        },
+        update(changed) {
+          ${code.update.join("\n")}
+        },
+        destroy() {
+          ${code.destroy.join("\n")}
+        },
+      };
+      return lifecycle;
+    }
+  `;
+  }
 }
 
 const parser = new SVELTEParser();
-const code = parser.parse();
-fs.writeFileSync("./ast.json", JSON.stringify(code, null, 2), "utf8");
+const ast = parser.parse();
+fs.writeFileSync("./ast.json", JSON.stringify(ast, null, 2), "utf8");
+const analysis = parser.analyse(ast);
+const js = parser.generate(ast, analysis);
+fs.writeFileSync("./app.js", js, "utf8");

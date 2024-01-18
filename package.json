@@ -7,10 +7,18 @@
   "scripts": {
     "test": "node index.js"
   },
-  "keywords": ["compiler", "ast", "framework", "npm"],
+  "keywords": [
+    "compiler",
+    "ast",
+    "framework",
+    "npm"
+  ],
   "author": "anupal",
   "license": "ISC",
   "dependencies": {
-    "acorn": "^8.11.3"
+    "acorn": "^8.11.3",
+    "escodegen": "^2.1.0",
+    "estree-walker": "^3.0.3",
+    "periscopic": "^4.0.2"
   }
 }

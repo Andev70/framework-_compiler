@@ -3,10 +3,17 @@
   <head>
     <title></title>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link href="css/style.css" rel="stylesheet" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1"
+      type="stylesheet"
+    />
+    <link href="style.css" rel="stylesheet" />
   </head>
   <body>
-    <div class="name" id="name"><input type="text" name="gggg" /></div>
+    <script type="module">
+      import App from "./app.js";
+      App().create(document.body);
+    </script>
   </body>
 </html>

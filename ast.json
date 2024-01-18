@@ -2,33 +2,203 @@
   "script": {
     "type": "Program",
     "start": 0,
-    "end": 32,
+    "end": 162,
     "body": [
       {
         "type": "VariableDeclaration",
         "start": 3,
-        "end": 31,
+        "end": 19,
         "declarations": [
           {
             "type": "VariableDeclarator",
             "start": 7,
-            "end": 31,
+            "end": 18,
             "id": {
               "type": "Identifier",
               "start": 7,
-              "end": 15,
-              "name": "variable"
+              "end": 14,
+              "name": "counter"
             },
             "init": {
               "type": "Literal",
-              "start": 18,
-              "end": 31,
-              "value": "hello world",
-              "raw": "\"hello world\""
+              "start": 17,
+              "end": 18,
+              "value": 0,
+              "raw": "0"
             }
           }
         ],
         "kind": "let"
+      },
+      {
+        "type": "VariableDeclaration",
+        "start": 20,
+        "end": 35,
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "start": 24,
+            "end": 35,
+            "id": {
+              "type": "Identifier",
+              "start": 24,
+              "end": 30,
+              "name": "differ"
+            },
+            "init": {
+              "type": "Literal",
+              "start": 31,
+              "end": 35,
+              "value": "ok",
+              "raw": "\"ok\""
+            }
+          }
+        ],
+        "kind": "let"
+      },
+      {
+        "type": "VariableDeclaration",
+        "start": 38,
+        "end": 72,
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "start": 44,
+            "end": 71,
+            "id": {
+              "type": "Identifier",
+              "start": 44,
+              "end": 53,
+              "name": "increment"
+            },
+            "init": {
+              "type": "ArrowFunctionExpression",
+              "start": 56,
+              "end": 71,
+              "id": null,
+              "expression": true,
+              "generator": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "UpdateExpression",
+                "start": 62,
+                "end": 71,
+                "operator": "++",
+                "prefix": false,
+                "argument": {
+                  "type": "Identifier",
+                  "start": 62,
+                  "end": 69,
+                  "name": "counter"
+                }
+              }
+            }
+          }
+        ],
+        "kind": "const"
+      },
+      {
+        "type": "VariableDeclaration",
+        "start": 75,
+        "end": 109,
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "start": 81,
+            "end": 108,
+            "id": {
+              "type": "Identifier",
+              "start": 81,
+              "end": 90,
+              "name": "decrement"
+            },
+            "init": {
+              "type": "ArrowFunctionExpression",
+              "start": 93,
+              "end": 108,
+              "id": null,
+              "expression": true,
+              "generator": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "UpdateExpression",
+                "start": 99,
+                "end": 108,
+                "operator": "--",
+                "prefix": false,
+                "argument": {
+                  "type": "Identifier",
+                  "start": 99,
+                  "end": 106,
+                  "name": "counter"
+                }
+              }
+            }
+          }
+        ],
+        "kind": "const"
+      },
+      {
+        "type": "VariableDeclaration",
+        "start": 112,
+        "end": 161,
+        "declarations": [
+          {
+            "type": "VariableDeclarator",
+            "start": 118,
+            "end": 161,
+            "id": {
+              "type": "Identifier",
+              "start": 118,
+              "end": 128,
+              "name": "changeDiff"
+            },
+            "init": {
+              "type": "ArrowFunctionExpression",
+              "start": 131,
+              "end": 161,
+              "id": null,
+              "expression": false,
+              "generator": false,
+              "async": false,
+              "params": [],
+              "body": {
+                "type": "BlockStatement",
+                "start": 135,
+                "end": 161,
+                "body": [
+                  {
+                    "type": "ExpressionStatement",
+                    "start": 141,
+                    "end": 157,
+                    "expression": {
+                      "type": "AssignmentExpression",
+                      "start": 141,
+                      "end": 157,
+                      "operator": "=",
+                      "left": {
+                        "type": "Identifier",
+                        "start": 141,
+                        "end": 147,
+                        "name": "differ"
+                      },
+                      "right": {
+                        "type": "Literal",
+                        "start": 148,
+                        "end": 157,
+                        "value": "hhdhfhh",
+                        "raw": "\"hhdhfhh\""
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          }
+        ],
+        "kind": "const"
       }
     ],
     "sourceType": "script"
@@ -36,132 +206,169 @@
   "html": [
     {
       "type": "Element",
-      "name": "div",
-      "attributes": [],
+      "name": "button",
+      "attributes": [
+        null,
+        {
+          "type": "Attribute",
+          "name": "on:click",
+          "value": {
+            "type": "Program",
+            "start": 0,
+            "end": 9,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 9,
+                  "name": "decrement"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
+        }
+      ],
       "children": [
         {
-          "type": "Element",
-          "name": "p",
-          "attributes": [],
-          "children": [
-            {
-              "type": "Text",
-              "value": "Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat."
-            }
-          ]
+          "type": "Text",
+          "value": "Decrement"
         }
       ]
     },
     {
       "type": "Element",
       "name": "div",
-      "attributes": [
+      "attributes": [],
+      "children": [
         {
-          "type": "Attribute",
-          "name": "class",
-          "value": "hello wrold"
-        },
-        null,
+          "type": "Expression",
+          "expression": {
+            "type": "Program",
+            "start": 0,
+            "end": 7,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 7,
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 7,
+                  "name": "counter"
+                }
+              }
+            ],
+            "sourceType": "script"
+          },
+          "name": "counter"
+        }
+      ]
+    },
+    {
+      "type": "Element",
+      "name": "button",
+      "attributes": [
         null,
         {
           "type": "Attribute",
           "name": "on:click",
-          "value": "()=>console.log(\"hello\")"
+          "value": {
+            "type": "Program",
+            "start": 0,
+            "end": 9,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 9,
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 9,
+                  "name": "increment"
+                }
+              }
+            ],
+            "sourceType": "script"
+          }
         }
       ],
       "children": [
         {
-          "type": "Element",
-          "name": "input",
-          "attributes": [
-            {
-              "type": "Attribute",
-              "name": "type",
-              "value": "text"
-            },
-            null,
-            null,
-            null
-          ],
-          "children": []
-        },
+          "type": "Text",
+          "value": "Increment"
+        }
+      ]
+    },
+    {
+      "type": "Element",
+      "name": "button",
+      "attributes": [
+        null,
         {
-          "type": "Element",
-          "name": "img",
-          "attributes": [
-            {
-              "type": "Attribute",
-              "name": "src",
-              "value": "hhdd"
-            },
-            null,
-            {
-              "type": "Attribute",
-              "name": "alt",
-              "value": "bbxb"
-            },
-            null
-          ],
-          "children": []
-        },
-        {
-          "type": "Element",
-          "name": "p",
-          "attributes": [
-            {
-              "type": "Attribute",
-              "name": "class",
-              "value": "hello"
-            },
-            null
-          ],
-          "children": [
-            {
-              "type": "Text",
-              "value": "Lorem ipsum dolor sit amet, qui minim labore adipisicing minim sint cillum sint consectetur cupidatat."
-            },
-            {
-              "type": "expression",
-              "expression": {
-                "type": "Program",
+          "type": "Attribute",
+          "name": "on:click",
+          "value": {
+            "type": "Program",
+            "start": 0,
+            "end": 10,
+            "body": [
+              {
+                "type": "ExpressionStatement",
                 "start": 0,
-                "end": 12,
-                "body": [
-                  {
-                    "type": "ExpressionStatement",
-                    "start": 0,
-                    "end": 12,
-                    "expression": {
-                      "type": "ConditionalExpression",
-                      "start": 0,
-                      "end": 12,
-                      "test": {
-                        "type": "Identifier",
-                        "start": 0,
-                        "end": 1,
-                        "name": "i"
-                      },
-                      "consequent": {
-                        "type": "Literal",
-                        "start": 2,
-                        "end": 7,
-                        "value": "yes",
-                        "raw": "\"yes\""
-                      },
-                      "alternate": {
-                        "type": "Literal",
-                        "start": 8,
-                        "end": 12,
-                        "value": "no",
-                        "raw": "\"no\""
-                      }
-                    }
-                  }
-                ],
-                "sourceType": "script"
+                "end": 10,
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 10,
+                  "name": "changeDiff"
+                }
               }
-            }
-          ]
+            ],
+            "sourceType": "script"
+          }
+        }
+      ],
+      "children": [
+        {
+          "type": "Text",
+          "value": "change"
+        }
+      ]
+    },
+    {
+      "type": "Element",
+      "name": "p",
+      "attributes": [],
+      "children": [
+        {
+          "type": "Expression",
+          "expression": {
+            "type": "Program",
+            "start": 0,
+            "end": 6,
+            "body": [
+              {
+                "type": "ExpressionStatement",
+                "start": 0,
+                "end": 6,
+                "expression": {
+                  "type": "Identifier",
+                  "start": 0,
+                  "end": 6,
+                  "name": "differ"
+                }
+              }
+            ],
+            "sourceType": "script"
+          },
+          "name": "differ"
         }
       ]
     }
